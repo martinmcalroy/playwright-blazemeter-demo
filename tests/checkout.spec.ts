@@ -5,13 +5,13 @@ import { addToCart } from '../helpers/addToCart';
 test.describe('Place an order', () => {
     
     test('User successfully places an order', async ({ page }) => {
-        const user = new UserBuilder("hSimpson1", "Passw0rd123")
-            .setName("Homer Simpson")
-            .setCountry("USA")
-            .setCity("Springfield")
-            .setCreditCard("1234 5678 1234 5687")
-            .setMonth("August")
-            .setYear("2031")
+        const user = new UserBuilder('hSimpson1', 'Passw0rd123')
+            .setName('Homer Simpson')
+            .setCountry('USA')
+            .setCity('Springfield')
+            .setCreditCard('1234 5678 1234 5687')
+            .setMonth('August')
+            .setYear('2031')
             .build();
         
         await page.goto('https://www.demoblaze.com/');
