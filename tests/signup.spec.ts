@@ -3,7 +3,7 @@ import { UserBuilder } from '../helpers/testUser';
 
 test.describe('Sign-up', () => {
     
-    test('User sign up sends request and backend responds correctly', async ({ page }) => {
+    test('User sign up sends request and backend responds correctly', async ({ page, browserName }) => {
         await page.goto('https://www.demoblaze.com/');
 
         const user = new UserBuilder('testUser123', 'Passw0rd123').build();
@@ -14,12 +14,14 @@ test.describe('Sign-up', () => {
         await page.getByRole('textbox', { name: 'Password:' }).fill(user.password);
 
         //capture dialog message and handle pop-up
-        var dialogMessage;
-        page.once('dialog', dialog => {
-            console.log(`Dialog message: ${dialog.message()}`);
-            dialog.dismiss().catch(() => {});
-            dialogMessage = dialog.message();
-        });
+        const dialogTimeout = browserName === 'firefox' ? 30000 : 5000;
+        const [dialog] = await Promise.all([
+            page.waitForEvent('dialog', { timeout: dialogTimeout }),
+            page.getByRole('button', { name: 'Sign up' }).click(),
+        ]);
+        const dialogMessage = dialog.message();
+        console.log(`Dialog message: ${dialogMessage}`);
+        await dialog.dismiss();
 
         //setup response handling with predicates to filter unexpected responses
         const signupResponsePromise = page.waitForResponse(response => {

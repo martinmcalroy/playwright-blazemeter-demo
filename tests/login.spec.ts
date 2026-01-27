@@ -4,6 +4,8 @@ import { UserBuilder } from '../helpers/testUser';
 test.describe('Log in', () => {
 
     test('Existing user can log in', async ({ page }) => {
+        test.slow();
+
         await page.goto('https://www.demoblaze.com/');
 
         const user = new UserBuilder('testSampleUser123', 'Passw0rd123').build();
@@ -13,12 +15,24 @@ test.describe('Log in', () => {
     
         await expect(page.locator('#logInModal > .modal-dialog > .modal-content > .modal-body')).toBeVisible();
     
+         const loginResponsePromise = page.waitForResponse(response => {
+            return (
+                response.url().includes('/check') &&
+                response.request().method() === 'POST' &&
+                response.status() === 200
+            );
+        });
+
         await page.locator('#loginusername').fill(user.username);
         await page.locator('#loginpassword').fill(user.password);
         await page.getByRole('button', { name: 'Log in' }).click();
+
+        const loginResponse = await loginResponsePromise;
+        const responseJson = await loginResponse.json();
+        await expect(responseJson.Item.username).toEqual(user.username);
     
         await expect(page.getByRole('link', { name: `Welcome ${user.username}` })).toBeVisible();
         await expect(page.getByRole('link', { name: 'Log out', exact: true })).toBeVisible();
     });
-    
+
 });

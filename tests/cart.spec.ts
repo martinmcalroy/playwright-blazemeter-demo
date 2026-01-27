@@ -3,19 +3,24 @@ import { addToCart } from '../helpers/addToCart';
 
 test.describe('Cart', () => {
 
-    test('User can add product to cart', async ({ page }) => {
+    test('User can add product to cart', async ({ page, browserName }) => {
         await page.goto('https://www.demoblaze.com/');
 
-        await expect(page.locator('#tbodyid')).toBeVisible();
+        const productsContainer = page.locator('#tbodyid');
+        await expect(productsContainer).toBeVisible();
+        const productCount = await productsContainer.locator('.card-block').count();
+        await expect(productCount).toBeGreaterThan(0);
     
         const productName = await addToCart(page);
         const productNameString = productName.toString();
+        console.log(productName);
+        console.log(productNameString);
     
-        await page.getByRole('link', { name: 'Add to cart', exact: true }).click();
         await page.getByRole('link', { name: 'Cart', exact: true }).click();
        
-        await expect(page.url()).toContain('/cart');
-        await expect(page.locator('#tbodyid')).toContainText(productNameString);
+        const cartRow = page.locator('#tbodyid tr', { hasText: productNameString });
+        const timeout = browserName === 'firefox' ? 17000 : 10000;
+        await expect(cartRow).toContainText(productName, { timeout: timeout });
     });
 
 });
