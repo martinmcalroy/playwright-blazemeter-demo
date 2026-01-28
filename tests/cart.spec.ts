@@ -13,8 +13,6 @@ test.describe('Cart', () => {
     
         const productName = await addToCart(page);
         const productNameString = productName.toString();
-        console.log(productName);
-        console.log(productNameString);
     
         await page.getByRole('link', { name: 'Cart', exact: true }).click();
        

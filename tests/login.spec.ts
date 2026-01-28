@@ -1,12 +1,21 @@
 import { test, expect } from '@playwright/test';
 import { UserBuilder } from '../helpers/testUser';
+import * as dotenv from 'dotenv';
 
 test.describe('Log in', () => {
 
     test('Existing user can log in', async ({ page }) => {
         test.slow();
+        dotenv.config();
 
         await page.goto('https://www.demoblaze.com/');
+
+        const username = process.env.LOG_IN_USERNAME;
+        const password = process.env.LOG_IN_PASSWORD;
+
+        if(!username || !password) {
+            throw new Error("Unexpected error: missing environment value for username or password.");
+        }
 
         const user = new UserBuilder('testSampleUser123', 'Passw0rd123').build();
             

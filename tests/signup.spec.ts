@@ -1,29 +1,36 @@
 import { test, expect } from '@playwright/test';
 import { UserBuilder } from '../helpers/testUser';
+import * as dotenv from 'dotenv';
 
 test.describe('Sign-up', () => {
     
     test('User sign up sends request and backend responds correctly', async ({ page, browserName }) => {
+        dotenv.config();
+
         await page.goto('https://www.demoblaze.com/');
+        
+        const username = process.env.SIGN_UP_USERNAME;
+        const password = process.env.SIGN_UP_PASSWORD;
 
-        const user = new UserBuilder('testUser123', 'Passw0rd123').build();
+        if(!username || !password) {
+            throw new Error("Unexpected error: missing environment value for username or password.");
+        }
 
+        const user = new UserBuilder(username, password).build();
+            
         await page.getByRole('link', { name: 'Sign up', exact: true }).click();
         await expect(page.getByRole('dialog', { name: 'Sign up' })).toBeVisible();
         await page.getByRole('textbox', { name: 'Username:' }).fill(user.username);
         await page.getByRole('textbox', { name: 'Password:' }).fill(user.password);
 
-        //capture dialog message and handle pop-up
         const dialogTimeout = browserName === 'firefox' ? 30000 : 5000;
         const [dialog] = await Promise.all([
             page.waitForEvent('dialog', { timeout: dialogTimeout }),
             page.getByRole('button', { name: 'Sign up' }).click(),
         ]);
         const dialogMessage = dialog.message();
-        console.log(`Dialog message: ${dialogMessage}`);
         await dialog.dismiss();
 
-        //setup response handling with predicates to filter unexpected responses
         const signupResponsePromise = page.waitForResponse(response => {
             return (
                 response.url().includes('/signup') &&
@@ -32,10 +39,8 @@ test.describe('Sign-up', () => {
             );
         });
 
-        //trigger network request
         await page.getByRole('button', { name: 'Sign up' }).click();
 
-        //parse response to assert on values
         const signupResponse = await signupResponsePromise;
         const responseBody = await signupResponse.json();
         const request = signupResponse.request();
@@ -47,10 +52,8 @@ test.describe('Sign-up', () => {
             'This user already exist.'
         ]).toContain(responseBody.errorMessage);
 
-        //ensure UI dialog message matches response message
         expect(dialogMessage).toBe(responseBody.errorMessage);
 
-        //validate the request sent the appropriate credentials
         expect(postData.username).toEqual(user.username);
         expect(postData.password.length).toBeGreaterThan(0);
     });
