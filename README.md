@@ -12,11 +12,20 @@ A small suite of frontend functional tests built with Playwright to validate cor
 	
 ## Setup:
 1. Clone the repository
-2. Install dependencies:
+2. Add a `.env` file to the repo root. Add the below vairables with whatever values you like: 
+```
+SIGN_UP_USERNAME=,
+SIGN_UP_PASSWORD=,
+LOG_IN_USERNAME=,
+LOG_IN_PASSWORD=,
+```
+NOTE: you may need to manually create an account with the log in credentials. <br/>
+
+3. Install dependencies:
 ```
 npm install
 ```
-3. Install Playwright browsers:
+4. Install Playwright browsers:
 ```
 npx playwright install
 ```
