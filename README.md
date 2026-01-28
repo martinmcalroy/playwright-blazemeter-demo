@@ -20,7 +20,7 @@ LOG_IN_USERNAME=,
 LOG_IN_PASSWORD=,
 ```
 NOTE: you may need to manually create an account with the log in credentials. <br/>
-There are two sets of user credentials here to prevent shared test datat or application state between tests.
+There are two sets of user credentials here to prevent shared test data or application state between tests.
 
 3. Install dependencies:
 ```
