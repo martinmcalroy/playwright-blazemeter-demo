@@ -1,11 +1,21 @@
 import { test, expect } from '@playwright/test';
 import { UserBuilder } from '../helpers/testUser';
 import { addToCart } from '../helpers/addToCart';
+import * as dotenv from 'dotenv';
 
 test.describe('Place an order', () => {
     
     test('User successfully places an order', async ({ page }) => {
-        const user = new UserBuilder('hSimpson1', 'Passw0rd123')
+        dotenv.config();
+        
+        const username = process.env.CHECKOUT_USERNAME;
+        const password = process.env.CHECKOUT_PASSWORD;
+        
+        if(!username || !password) {
+            throw new Error("Unexpected error: missing environment value for username or password.");
+        }
+
+        const user = new UserBuilder(username, password)
             .setName('Homer Simpson')
             .setCountry('USA')
             .setCity('Springfield')
